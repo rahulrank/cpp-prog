@@ -57,6 +57,7 @@ class Graph
    // void display();
     void minHeapify(int,int);
     void dijkstraPath();
+    void bellman();
 };
 
 void Graph::addEdge(int a, int b, int c)
@@ -118,6 +119,26 @@ void Graph::dijkstraPath()
     cout<<a->no<<"      "<<a->key<<endl;
 }
 
+void Graph::bellman()
+{
+    v[0]->key = 0;
+    for(int i=1;i<n;i++)
+    {
+        for(auto a : ed)
+        {
+            if(a.to->key > a.from->key + a.cost)
+            {
+                a.to->key = a.from->key + a.cost;
+                a.to->p = a.from;
+            }
+        }
+    }
+    cout<<"Distance from source node 0"<<endl;
+    cout<<"node distance"<<endl;
+    for(auto a : v)
+    cout<<a->no<<"      "<<a->key<<endl;
+}
+
 //void Graph::display()
 //{
 //    cout<<((v[0].e)->back())->cost;   ((v[0].e)->back())->cost; --> To access struct element of node
@@ -136,6 +157,6 @@ int main()
     g.addEdge(4,3,6);
     g.addEdge(3,4,4);
     g.addEdge(4,0,7);
-    g.dijkstraPath();
+    g.bellman();
     return 0;
 }
