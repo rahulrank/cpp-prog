@@ -24,7 +24,12 @@ class Tree
     }
     void addNode(int);
     void deleteNode(int);
-    void binarySearch(node *);
+    void inorder();
+    void inorder(node *);
+    void preorder();
+    void preorder(node *);
+    void postorder();
+    void postorder(node *);
     void balance(node *);
     void rotation(node *, node *, node *);
     void updateHight(node *);
@@ -75,38 +80,110 @@ void Tree::addNode(int x)
             prev->lh = 1;
         }
         prev->w = prev->rh - prev->lh;
+        if(prev->w == 0)
+        return;
+        else
         balance(prev);
     }
+}
+
+void Tree::deleteNode(int x)
+{
+    node *temp = root;
+    node *t, *prev;
+    while(temp != nullptr && temp->key != x)
+    {
+        if(temp->key < x)
+        temp = temp->rightc;
+        else
+        temp = temp->leftc;
+    }
+    if(temp != nullptr)
+    {
+        if(temp->leftc == nullptr && temp->rightc == nullptr)
+        {
+            if(temp->parent != nullptr)
+            {
+                if(temp == temp->parent->leftc)
+                temp->parent->leftc = nullptr;
+                else
+                temp->parent->rightc = nullptr;
+            }
+            else
+            {
+                root = nullptr;
+            }
+        }
+        else if(temp->leftc != nullptr && temp->rightc == nullptr)
+        {
+            if(temp->parent != nullptr)
+            {
+                if(temp == temp->parent->leftc)
+                temp->parent->leftc = temp->leftc;
+                else
+                temp->parent->rightc = temp->leftc;
+                temp->leftc->parent = temp->parent;
+            }
+            else
+            {
+                root = temp->leftc;
+                temp->leftc->parent = nullptr;
+            }
+        }
+        else if(temp->leftc == nullptr && temp->rightc != nullptr)
+        {
+            if(temp->parent != nullptr)
+            {
+                if(temp == temp->parent->leftc)
+                temp->parent->leftc = temp->rightc;
+                else
+                temp->parent->rightc = temp->rightc;
+                temp->rightc->parent = temp->parent;
+            }
+            else
+            {
+                root = temp->rightc;
+                temp->rightc->parent = nullptr;
+            }
+        }
+        else
+        {
+            t = temp->leftc;
+            while(t != nullptr)
+            {
+                prev = t;
+                t = t->rightc;
+            }
+            temp->key = prev->key;
+        }
+    }
+    else
+    cout<<x<<"can not be found in tree";
 }
 
 void Tree::balance(node *n)
 {
     node *u, *m, *l;
-    if(n->w ==0)
-        return;
-    else
-    {
-        while(n->w != 2 && n->w != -2 && n != root)
+
+    while(n != nullptr)
         {
-            n = n->parent;
             updateHight(n);
-        }
-        if(n->w != 2 && n->w != -2)
-        return;
-        else
-        {
-            u = n;
-            if(n->w == -2)
-            m = u->leftc;
+            if(n->w == 2 || n->w == -2)
+            {
+                u = n;
+                if(n->w == -2)
+                m = u->leftc;
+                else
+                m = u->rightc;
+                if(m->w < 0)
+                l = m->leftc;
+                else
+                l = m->rightc;
+                rotation(u,m,l);
+            }
             else
-            m = u->rightc;
-            if(m->w < 0)
-            l = m->leftc;
-            else
-            l = m->rightc;
-            rotation(u,m,l);
+            n = n->parent;
         }
-    }
 }
 
 void Tree::rotation(node *u, node *m, node *l)
@@ -127,12 +204,7 @@ void Tree::rotation(node *u, node *m, node *l)
         m->rightc = u;
         u->parent = m;
         if(u == root)
-        root == m;
-        while(u != nullptr)
-        {
-            updateHight(u);
-            u = u->parent;
-        }
+        root = m;
     }
     else if(m == u->rightc && l == m->rightc)
     {
@@ -150,12 +222,7 @@ void Tree::rotation(node *u, node *m, node *l)
         m->leftc = u;
         u->parent = m;
         if(u == root)
-        root == m;
-        while(u != nullptr)
-        {
-            updateHight(u);
-            u = u->parent;
-        }
+        root = m;
     }
     else if(m == u->leftc && l == m->rightc)
     {
@@ -178,13 +245,8 @@ void Tree::rotation(node *u, node *m, node *l)
         l->rightc = u;
         u->parent = l;
         if(u == root)
-        root == l;
+        root = l;
         updateHight(m);
-        while(u != nullptr)
-        {
-            updateHight(u);
-            u = u->parent;
-        }
     }
     else
     {
@@ -207,13 +269,8 @@ void Tree::rotation(node *u, node *m, node *l)
         l->leftc = u;
         u->parent = l;
         if(u == root)
-        root == l;
+        root = l;
         updateHight(m);
-        while(u != nullptr)
-        {
-            updateHight(u);
-            u = u->parent;
-        }
     }
 }
 
@@ -237,8 +294,61 @@ void Tree::updateHight(node *n)
     n->w = n->rh - n->lh;
 }
 
+void Tree::inorder()
+{
+    if(root != nullptr)
+    inorder(root);
+}
+
+void Tree::inorder(node *n)
+{
+    if(n != nullptr)
+    {
+        inorder(n->leftc);
+        cout<<n->key<<" ";
+        inorder(n->rightc);
+    }
+}
+
+void Tree::preorder()
+{
+    if(root != nullptr)
+    preorder(root);
+}
+
+void Tree::preorder(node *n)
+{
+    if(n != nullptr)
+    {
+        cout<<n->key<<" ";
+        preorder(n->leftc);
+        preorder(n->rightc);
+    }
+}
+
+void Tree::postorder()
+{
+    if(root != nullptr)
+    postorder(root);
+}
+
+void Tree::postorder(node *n)
+{
+    if(n != nullptr)
+    {
+        postorder(n->leftc);
+        postorder(n->rightc);
+        cout<<n->key<<" ";
+    }
+}
+
 int main()
 {
-    cout << "Hello world!" << endl;
+    Tree t;
+    for(int i=1; i<=10; i++)
+    t.addNode(i);
+    t.inorder();
+    t.preorder();
+    t.postorder();
     return 0;
 }
